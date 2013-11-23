@@ -99,7 +99,7 @@ static void run(LV2_Handle instance, uint32_t sample_count)
 					nearestnote = (int)notefound;
 				}
 				diff = nearestnote - notefound;
-				nearestnote = (nearestnote - 49 + 12) % 12;
+				nearestnote = (nearestnote - 49 + 48) % 12;
 				switch (nearestnote) {
 					case 0:
 						note = 'A';
