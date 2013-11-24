@@ -45,7 +45,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 	unsigned long N=membvars->buffer.cbsize;
 	membvars->fmembvars = fft_con(N);
 	membvars->fs = s_rate;
-	membvars->noverlap = 4;
+	membvars->noverlap = 2;
 	
 	InstantiatePitchDetector(&membvars->pdetector, membvars->fmembvars, N, s_rate);
 	return membvars;
@@ -90,7 +90,7 @@ static void run(LV2_Handle instance, uint32_t sample_count)
 			char note = ' ';
 			char notesh = ' ';
 
-			if(pperiod>0 && fabs(in) > 0.001) {
+			if(pperiod>0 && fabs(in) > 0.00001) {
 				freqfound = 1.f/pperiod;
 				notefound = 12.0*log(freqfound/440)/log(2.0)+49.0;
 				if (notefound - (int)notefound > 0.5) {

@@ -2,10 +2,10 @@
 
 void InstantiateCircularBuffer(CircularBuffer * buffer, unsigned long SampleRate) {
 	if (SampleRate>=88200) {
-		buffer->cbsize = 4096;
+		buffer->cbsize = 8192;
 	}
 	else {
-		buffer->cbsize = 2048;
+		buffer->cbsize = 4096;
 	}
 	buffer->corrsize = buffer->cbsize / 2 + 1;
 

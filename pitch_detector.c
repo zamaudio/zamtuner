@@ -49,7 +49,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	}
 
 	//circular buffer of peaks.
-	const int numpeaks=2000;
+	const int numpeaks=4096;
 	const float* peaks[numpeaks];
 	memset(peaks,0, sizeof(float*) * numpeaks);
 	//current write pointer
@@ -111,6 +111,9 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	if (peak>0) {
 		int peakindex=bestpeak-autocorr;
 		pdetector->confidence = (*bestpeak) * pdetector->acwinv[peakindex];
+		// Do not interpolate
+		pperiod = (float) (peakindex) / ((float) fs);
+		/*
 		if (bestpeak<end) {
 			//Parabolically interpolate to find the peak
 			int denominator=2*bestpeak[0]-bestpeak[1]-bestpeak[-1];
@@ -124,6 +127,7 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 		} else {
 			pperiod = (float)(peakindex)/fs;
 		}
+		*/
 	} else {
 		pdetector->confidence=0;
 	}
@@ -147,12 +151,15 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 		pdetector->nmax =corrsize;
 	}
 	pdetector->nmin = (unsigned long)(SampleRate * pdetector->pmin);
-	pdetector->vthresh = 0.7;  //  The voiced confidence (unbiased peak) threshold level
+	pdetector->vthresh = 0.6;  //  The voiced confidence (unbiased peak) threshold level
 	// Generate a window with a single raised cosine from N/4 to 3N/4
 	pdetector->cbwindow=(float*) calloc(cbsize, sizeof(float));
 	int i;
 	for (i=0; i<((int)cbsize/2 ); i++) {
+		int M = cbsize + 1;
+		float factor = i * 2.0 * PI / (M - 1.0);
 		pdetector->cbwindow[i+cbsize/4] = -0.5*cos(4*PI*i/(cbsize - 1)) + 0.5;
+		//flat top 0.2156 - 0.416 * cos(factor) + 0.2781 * cos(2.0*factor) - 0.0836 * cos(3.0 * factor) + 0.0069 * cos(4.0 * factor); //1.0/sqrt(2.0);
 	}
 	// ---- Calculate autocorrelation of window ----
 	pdetector->acwinv = (float*) calloc(cbsize, sizeof(float));
