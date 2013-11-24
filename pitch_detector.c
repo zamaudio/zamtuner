@@ -151,7 +151,7 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 		pdetector->nmax =corrsize;
 	}
 	pdetector->nmin = (unsigned long)(SampleRate * pdetector->pmin);
-	pdetector->vthresh = 0.6;  //  The voiced confidence (unbiased peak) threshold level
+	pdetector->vthresh = 0.75;  //  The voiced confidence (unbiased peak) threshold level
 	// Generate a window with a single raised cosine from N/4 to 3N/4
 	pdetector->cbwindow=(float*) calloc(cbsize, sizeof(float));
 	int i;

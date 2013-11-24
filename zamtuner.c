@@ -90,7 +90,7 @@ static void run(LV2_Handle instance, uint32_t sample_count)
 			char note = ' ';
 			char notesh = ' ';
 
-			if(pperiod>0 && fabs(in) > 0.00001) {
+			if(pperiod>0 && fabs(in) > 0.0005) {
 				freqfound = 1.f/pperiod;
 				notefound = 12.0*log(freqfound/440)/log(2.0)+49.0;
 				if (notefound - (int)notefound > 0.5) {
