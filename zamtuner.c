@@ -156,7 +156,7 @@ static void run(LV2_Handle instance, uint32_t sample_count)
 				*(zamtuner->fundamental) = nearestnote; 
 
 			} else { 
-				*(zamtuner->finetune) = 0.f;
+				//*(zamtuner->finetune) = 0.f;
 				*(zamtuner->fundamental) = -1.f;
 				//printf("WtF pitch\n");
 			}
