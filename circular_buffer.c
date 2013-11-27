@@ -1,6 +1,6 @@
 #include "circular_buffer.h"
 
-void InstantiateCircularBuffer(CircularBuffer * buffer, unsigned long SampleRate) {
+void InstantiateCircularBuffer(CircularBuffer* buffer, unsigned long SampleRate) {
 	if (SampleRate>=88200) {
 		buffer->cbsize = 16384;
 	}

@@ -1,6 +1,15 @@
-@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
+@prefix mtr:  <http://zamaudio.com/lv2/zamtuner#> .
+@prefix kx:   <http://kxstudio.sf.net/ns/lv2ext/external-ui#> .
 
-<http://zamaudio.com/lv2/zamtuner>
-  a lv2:Plugin;
-  rdfs:seeAlso <zamtuner.ttl>.
+mtr:needle_gtk
+	a ui:GtkUI ;
+	ui:binary <zamtuner_gtk.so> ;
+	rdfs:seeAlso <zamtuner.ttl> .
+
+mtr:zamtuner
+	a lv2:Plugin ;
+	lv2:binary <zamtuner.so> ;
+	rdfs:seeAlso <zamtuner.ttl> .

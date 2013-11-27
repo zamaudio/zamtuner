@@ -27,9 +27,9 @@ typedef struct {
   float ppickthresh;	
 } PitchDetector;
 
-const float * obtain_autocovariance(PitchDetector * pdetector,fft_vars* fftvars, CircularBuffer* buffer, long int N);
+const float * obtain_autocovariance(PitchDetector* pdetector,fft_vars* fftvars, CircularBuffer* buffer, long int N);
 
-float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigned long Nf, float fs);
+float get_pitch_period(PitchDetector* pdetector, const float* autocorr, unsigned long Nf, float fs);
 
-void InstantiatePitchDetector(PitchDetector * pdetector, fft_vars* fftvars, unsigned long corrsize, double samplerate );
+void InstantiatePitchDetector(PitchDetector* pdetector, fft_vars* fftvars, unsigned long corrsize, double samplerate );
 #endif

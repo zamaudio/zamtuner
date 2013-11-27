@@ -1,7 +1,8 @@
 #include "pitch_detector.h"
 #include "lv2.h"
 
-const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars, CircularBuffer* buffer,long int N) {
+const float * obtain_autocovariance(PitchDetector* pdetector, fft_vars* fftvars, CircularBuffer* buffer,long int N) {
+
 	// Window and fill FFT buffer
 	long int i;
 	for (i=0; i<N; i++) {
@@ -26,7 +27,7 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	fft_inverse(fftvars);
 
 	// Normalize
-	float tf = (float)1/(fftvars->ffttime[0]); //Everything is divided by N because fftw doesn't normalize, and instead introduces a factor of N
+	float tf = (float)1.0/(float)(fftvars->ffttime[0]); //Everything is divided by N because fftw doesn't normalize, and instead introduces a factor of N
 	for (i=1; i<N; i++) {
 		fftvars->ffttime[i] = fftvars->ffttime[i] * tf;
 
@@ -35,7 +36,8 @@ const float * obtain_autocovariance(PitchDetector *pdetector, fft_vars* fftvars,
 	return fftvars->ffttime;
 }
 
-float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigned long Nf, float fs) {
+float get_pitch_period(PitchDetector* pdetector, const float * autocorr, unsigned long Nf, float fs) {
+
 	// Calculate pitch period
 
 	//MPM Algorithm, thanks to Philip McLeod, and Geoff Wyvill, adapted from their GPL Tartini program
@@ -140,7 +142,8 @@ float get_pitch_period(PitchDetector * pdetector, const float* autocorr, unsigne
 	}
 }
 
-void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsigned long cbsize, double SampleRate) {
+void InstantiatePitchDetector(PitchDetector* pdetector,fft_vars* fftvars, unsigned long cbsize, double SampleRate) {
+
 	pdetector->ppickthresh=0.9;//I have no idea what this should be, except the MPM paper suggested between 0.8 and 1, so I am taking the average :P
 	unsigned long corrsize=cbsize/2+1;
 	pdetector->pmax = 1/(float)70;  // max and min periods (ms)
@@ -156,9 +159,9 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	pdetector->cbwindow=(float*) calloc(cbsize, sizeof(float));
 	int i;
 	for (i=0; i<((int)cbsize/2 ); i++) {
-		int M = cbsize + 1;
-		float factor = i * 2.0 * PI / (M - 1.0);
-		pdetector->cbwindow[i+cbsize/4] = -0.5*cos(4*PI*i/(cbsize - 1)) + 0.5;
+		//int M = cbsize + 1;
+		//float factor = i * 2.0 * PI / (float)(M - 1.0);
+		pdetector->cbwindow[i+cbsize/4] = (float) (-0.5*cos(4*PI*i/(float)(cbsize - 1)) + 0.5);
 		//flat top 0.2156 - 0.416 * cos(factor) + 0.2781 * cos(2.0*factor) - 0.0836 * cos(3.0 * factor) + 0.0069 * cos(4.0 * factor); //1.0/sqrt(2.0);
 	}
 	// ---- Calculate autocorrelation of window ----
@@ -172,9 +175,9 @@ void InstantiatePitchDetector(PitchDetector * pdetector,fft_vars* fftvars, unsig
 	}
 	fft_inverse(fftvars);
 	for (i=1; i<(int)cbsize; i++) {
-		pdetector->acwinv[i] = fftvars->ffttime[i]/fftvars->ffttime[0];
+		pdetector->acwinv[i] = fftvars->ffttime[i]/(float)fftvars->ffttime[0];
 		if (pdetector->acwinv[i] > 0.000001) {
-			pdetector->acwinv[i] = (float)1/pdetector->acwinv[i];
+			pdetector->acwinv[i] = (float)1.0/(float)pdetector->acwinv[i];
 		}
 		else {
 			pdetector->acwinv[i] = 0;

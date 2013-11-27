@@ -1,73 +1,70 @@
-@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
-@prefix foaf: <http://xmlns.com/foaf/0.1/>.
-@prefix doap: <http://usefulinc.com/ns/doap#>.
-@prefix pprops: <http://lv2plug.in/ns/ext/port-props#>.
-@prefix ue: <http://lv2plug.in/ns/extensions/units#>.
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix param: <http://lv2plug.in/ns/ext/parameters#>.
-@prefix pg: <http://lv2plug.in/ns/ext/port-groups#>.
+@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
+@prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix pg:    <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix rsz:   <http://lv2plug.in/ns/ext/resize-port#> .
+@prefix time:  <http://lv2plug.in/ns/ext/time#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
+@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
+@prefix kx:    <http://kxstudio.sf.net/ns/lv2ext/external-ui#> .
 
-<http://zamaudio.com/lv2/zamtuner>
-  a lv2:Plugin;
+<http://zamaudio.com/lv2/zamtuner#zamtuner>
+	a lv2:Plugin;
+	a lv2:AnalyserPlugin;
 
-  lv2:binary <zamtuner.so>;
-  doap:name "ZamTuner";
-  doap:maintainer [
-     foaf:name "Damien Zammit";
-     foaf:homepage <http://zamaudio.com>;
-     foaf:mbox <mailto:damien@zamaudio.com>;
-  ];
-  doap:license <http://usefulinc.com/doap/licenses/gpl>;
-  lv2:optionalFeature pprops:supportsStrictBounds ;
-  lv2:optionalFeature lv2:hardRTCapable ;
+	lv2:binary <zamtuner.so>;
+	doap:name "ZamTuner";
+	doap:maintainer [
+		foaf:name "Damien Zammit";
+		foaf:homepage <http://zamaudio.com>;
+		foaf:mbox <mailto:damien@zamaudio.com>;
+		];
+	doap:license <http://usefulinc.com/doap/licenses/gpl>;
+	ui:ui <http://zamaudio.com/lv2/zamtuner#needle_gtk>;
 
-  lv2:port [
-    a lv2:AudioPort, lv2:InputPort;
-    lv2:index 0;
-    lv2:symbol "input";
-    lv2:name "Input";
-  ],
-
-  [
-    a lv2:AudioPort, lv2:OutputPort;
-    lv2:index 1;
-    lv2:symbol "output";
-    lv2:name "Output";
-  ],
-
-  [
-    a lv2:ControlPort, lv2:OutputPort;
-    lv2:index 2;
-    lv2:symbol "fundamental";
-    lv2:name "Piano Key";
-    lv2:minimum -1.0;
-    lv2:maximum 12.0;
-    lv2:default -1.0;
-    lv2:portProperty lv2:integer ;
-    lv2:portProperty lv2:enumeration ;
-    lv2:scalePoint [ rdfs:label " "; rdf:value -1.0 ] ;
-    lv2:scalePoint [ rdfs:label "A"; rdf:value 0.0 ] ;
-    lv2:scalePoint [ rdfs:label "A#"; rdf:value 1.0 ] ;
-    lv2:scalePoint [ rdfs:label "B"; rdf:value 2.0 ] ;
-    lv2:scalePoint [ rdfs:label "C"; rdf:value 3.0 ] ;
-    lv2:scalePoint [ rdfs:label "C#"; rdf:value 4.0 ] ;
-    lv2:scalePoint [ rdfs:label "D"; rdf:value 5.0 ] ;
-    lv2:scalePoint [ rdfs:label "D#"; rdf:value 6.0 ] ;
-    lv2:scalePoint [ rdfs:label "E"; rdf:value 7.0 ] ;
-    lv2:scalePoint [ rdfs:label "F"; rdf:value 8.0 ] ;
-    lv2:scalePoint [ rdfs:label "F#"; rdf:value 9.0 ] ;
-    lv2:scalePoint [ rdfs:label "G"; rdf:value 10.0 ] ;
-    lv2:scalePoint [ rdfs:label "G#"; rdf:value 11.0 ] ;
-  ],
-  
-  [
-    a lv2:ControlPort, lv2:OutputPort;
-    lv2:index 3;
-    lv2:symbol "finetune";
-    lv2:name "FineTune";
-    lv2:minimum -1.0;
-    lv2:maximum 1.0;
-    lv2:default 0.0;
-  ].
-
+	lv2:port [
+		a lv2:ControlPort ,
+			lv2:InputPort ;
+		lv2:index 0 ;
+		lv2:symbol "ref" ;
+		lv2:name "Reference Level 0dBu" ;
+		lv2:default -18.0 ;
+		lv2:minimum -30.0 ;
+		lv2:maximum 0.0 ;
+		units:unit units:db;
+	] , [
+		a lv2:AudioPort ,
+			lv2:InputPort ;
+		lv2:index 1 ;
+		lv2:symbol "in" ;
+		lv2:name "In"
+	] , [
+		a lv2:AudioPort ,
+			lv2:OutputPort ;
+		lv2:index 2 ;
+		lv2:symbol "out" ;
+		lv2:name "Out"
+	] , [
+		a lv2:ControlPort ,
+			lv2:OutputPort ;
+		lv2:index 3 ;
+		lv2:symbol "level1" ;
+		lv2:name "Level1" ;
+		lv2:default 0.0 ;
+		lv2:minimum -1.0 ;
+		lv2:maximum 1.0 ;
+	] , [
+		a lv2:ControlPort ,
+			lv2:OutputPort ;
+		lv2:index 4 ;
+		lv2:symbol "fundamental1" ;
+		lv2:name "Fundamental1" ;
+		lv2:default -1.0;
+		lv2:minimum -1.0;
+		lv2:maximum 11.0;
+	].
