@@ -91,7 +91,7 @@ void Zamtunerdsp::init (float fsamp)
         unsigned long N=buffer.cbsize;
         Zamtunerdsp::fmembvars = fft_con(N);
         Zamtunerdsp::fs = fsamp;
-        Zamtunerdsp::noverlap = 2;
+        Zamtunerdsp::noverlap = 6;
 
         InstantiatePitchDetector(&pdetector, fmembvars, N, fsamp);
 }

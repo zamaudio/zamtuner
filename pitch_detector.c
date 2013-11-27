@@ -113,23 +113,23 @@ float get_pitch_period(PitchDetector* pdetector, const float * autocorr, unsigne
 	if (peak>0) {
 		int peakindex=bestpeak-autocorr;
 		pdetector->confidence = (*bestpeak) * pdetector->acwinv[peakindex];
-		// Do not interpolate
-		pperiod = (float) (peakindex) / ((float) fs);
-		/*
+		//// Do not interpolate
+		//pperiod = (float) (peakindex) / ((float) fs);
+		
 		if (bestpeak<end) {
 			//Parabolically interpolate to find the peak
 			int denominator=2*bestpeak[0]-bestpeak[1]-bestpeak[-1];
 			if(denominator!=0) {
 				int numerator=bestpeak[1]-bestpeak[-1];
 				float fmax=peakindex+((float)numerator)/((float)denominator);
-				pperiod=fmax/fs;
+				pperiod=fmax/(float)fs;
 			} else {
-				pperiod=peakindex/fs;
+				pperiod=peakindex/(float)fs;
 			}
 		} else {
-			pperiod = (float)(peakindex)/fs;
+			pperiod = (float)(peakindex)/(float)fs;
 		}
-		*/
+		
 	} else {
 		pdetector->confidence=0;
 	}
@@ -138,7 +138,7 @@ float get_pitch_period(PitchDetector* pdetector, const float * autocorr, unsigne
 	if (pdetector->confidence>=pdetector->vthresh) {
 		return pperiod;
 	} else {
-		return -1;  //Could not find pitch;
+		return -1.0;  //Could not find pitch;
 	}
 }
 
