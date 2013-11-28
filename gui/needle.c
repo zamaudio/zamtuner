@@ -548,7 +548,6 @@ cleanup(LV2UI_Handle handle)
 	pango_font_description_free(ui->font);
 	robwidget_destroy(ui->rw);
 	free(ui->img0);
-	free(ui->img1);
 	free(ui);
 }
 
