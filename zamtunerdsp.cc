@@ -23,11 +23,13 @@ inline void Zamtunerdsp::IncrementPointer(CircularBuffer& buffer) {
 }
 
 int Zamtunerdsp::read_timer(int i, float nearestnotehz, int sample_rate) {
-	float prezero = sin(2.0*PI*nearestnotehz*(i-1)/sample_rate);
-	float current = sin(2.0*PI*nearestnotehz*i/sample_rate);
+	double prezero = sin(2.0*PI*nearestnotehz*(i-1)/sample_rate);
+	double current = sin(2.0*PI*nearestnotehz*i/sample_rate);
 	if (		(prezero < 0.0 && current >= 0.0) ) {
-       		// zero crossing at end of wave
+       		// return timestamp at end of wave zero crossing
+		//printf("zero detected\n");
 		return i;
+
 	}
 	return 0;
 }
@@ -43,17 +45,17 @@ void Zamtunerdsp::process (float *p, int n)
         float* pfOutput=p;
 
 	// Delay locked loop
-	float nper = sample_count;
-	float tper = sample_count / fs;
-	float omega = 2.0*PI/440.0;
-	float b = sqrt(2.0*omega);
-	float c = omega*omega;
-	float e;
+	double nper = sample_count;
+	double tper = sample_count / fs;
+	double omega = 2.0*PI*440.0/fs;
+	double b = sqrt(2.0)*omega;
+	double c = omega*omega;
+	double e;
 
 	//init loop
-	float e2 = tper;
-	float t0 = Zamtunerdsp::read_timer(0, 440.0, fs);
-	float t1 = t0 + e2;
+	double e2 = tper;
+	double t0 = Zamtunerdsp::read_timer(0, 440.0, fs);
+	double t1 = t0 + e2;
 	int k = 0;
 
 
@@ -70,6 +72,8 @@ void Zamtunerdsp::process (float *p, int n)
 
                 Zamtunerdsp::IncrementPointer(Zamtunerdsp::buffer);
 
+			// Delay locked loop iteration
+			k = (k+1+(int)fs) % ((int)fs);
                 // Every N/noverlap samples, run pitch estimation / manipulation code
                 if ((Zamtunerdsp::buffer.cbiwr)%(N/Zamtunerdsp::noverlap) == 0) {
                         //  ---- Calculate pitch and confidence ----
@@ -81,16 +85,7 @@ void Zamtunerdsp::process (float *p, int n)
                         float diff = 0.f;
 			float nearestnotehz = 0.f;
 
-			// Delay locked loop iteration
-			k = (k+1+(int)fs) % ((int)fs);
 
-			// read timer and calculate loop error
-			e = read_timer(k, nearestnotehz, fs) - t1;
-
-			//update loop
-			t0 = t1;
-			t1 += b*e + e2;
-			e2 += c*e;
 
                         if(pperiod>0 && fabs(in) > 0.0005) {
                                 freqfound = 1.f/pperiod;
@@ -104,15 +99,27 @@ void Zamtunerdsp::process (float *p, int n)
                                 nearestnotenum = (nearestnote - 49 + 48) % 12;
                                 Zamtunerdsp::fundamental = nearestnotenum;
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
-				omega = 2.0*PI*1.0/freqfound;
-				b = sqrt(2.0*omega);
+				omega = 2.0*PI*(nearestnotehz-freqfound)/fs;
+				b = sqrt(2.0)*omega;
 				c = omega*omega;
-				
-				
-				Zamtunerdsp::meter = t1/nearestnotehz*fs/10.0;//t1/freqfound*fs/10.0;
-				printf("meter = %f\n", Zamtunerdsp::meter);
-				printf("freqfound = %f\n", freqfound);
 
+				// read timer and calculate loop error
+				e = read_timer(k, nearestnotehz-freqfound, fs) - t1;
+
+				//update loop
+				t0 = t1;
+				t1 += b*e + e2;
+				e2 += c*e;
+
+				Zamtunerdsp::meter = -((t1-0.021331)*fs/10.0-e2)*20.0;
+				/*
+				printf("meter =\t%f\n", meter);
+				printf("t1 =\t%f\n", t1);
+				printf("e2 =\t%f\n", e2);
+				printf("freqfound =\t%f\n", freqfound);
+				printf("nearestnotehz =\t%f\n", nearestnotehz);
+				printf("\n");
+				*/
                         } else {
                                 Zamtunerdsp::fundamental = -1.f;
                                 Zamtunerdsp::meter = 0.f;
@@ -121,10 +128,11 @@ void Zamtunerdsp::process (float *p, int n)
 
 			//update sample counts
 			n0 = n1;
-			n1 += nper;
                 }
 
                 *(pfOutput++)=in;        
+		n1 += nper;
+
         }
 }
 
