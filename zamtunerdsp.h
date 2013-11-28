@@ -15,6 +15,7 @@ public:
 	void process (float *p, int n);
 	float readfine (void);
 	float readnote (void);
+	int read_timer (int, float, int);
 	inline void IncrementPointer(CircularBuffer& buffer);
 	void init (float fsamp);
 
