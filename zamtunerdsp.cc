@@ -83,7 +83,7 @@ void Zamtunerdsp::process (float *p, int n)
                         int nearestnote = 0;
                         float freqfound = 0.f;
                         float notefound = 0.f;
-                        float diff = 0.f;
+                        //float diff = 0.f;
 			float nearestnotehz = 0.f;
 
 
@@ -96,7 +96,7 @@ void Zamtunerdsp::process (float *p, int n)
                                 } else {
                                         nearestnote = rint(notefound);
                                 }
-                                diff = nearestnote - notefound;
+                                //diff = nearestnote - notefound;
                                 nearestnotenum = (nearestnote - 49 + 48) % 12;
                                 Zamtunerdsp::fundamental = nearestnotenum;
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
@@ -120,7 +120,7 @@ void Zamtunerdsp::process (float *p, int n)
 				t1 += b*e + e2;
 				e2 += c*e;
 
-				Zamtunerdsp::meter = e2-t1;//-0.0208783);//-((t1-0.021331)*fs/10.0-e2)*20.0;
+				Zamtunerdsp::meter = e2;//-0.0208783);//-((t1-0.021331)*fs/10.0-e2)*20.0;
 				printf("meter =\t%f\n", meter);
 				printf("t1 =\t%f\n", t1);
 				printf("e2 =\t%f\n", e2);
