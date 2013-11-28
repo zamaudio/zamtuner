@@ -48,6 +48,7 @@ void Zamtunerdsp::process (float *p, int n)
 	double nper = sample_count;
 	double tper = sample_count / fs;
 	double omega = 2.0*PI*440.0/fs;
+	double oldomega = omega;
 	double b = sqrt(2.0)*omega;
 	double c = omega*omega;
 	double e;
@@ -99,27 +100,33 @@ void Zamtunerdsp::process (float *p, int n)
                                 nearestnotenum = (nearestnote - 49 + 48) % 12;
                                 Zamtunerdsp::fundamental = nearestnotenum;
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
-				omega = 2.0*PI*(nearestnotehz-freqfound)/fs;
+				omega = 2.0*PI*(nearestnotehz)/fs;
 				b = sqrt(2.0)*omega;
 				c = omega*omega;
 
+				if (fabs(omega - oldomega) > 0.001) {
+					oldomega = omega;
+					e2 = tper;
+        				t0 = Zamtunerdsp::read_timer(k, nearestnotehz, fs);
+					t1 = t0 + e2;
+					k = 1;
+				}
+
 				// read timer and calculate loop error
-				e = read_timer(k, nearestnotehz-freqfound, fs) - t1;
+				e = in - t1;
 
 				//update loop
 				t0 = t1;
 				t1 += b*e + e2;
 				e2 += c*e;
 
-				Zamtunerdsp::meter = -((t1-0.021331)*fs/10.0-e2)*20.0;
-				/*
+				Zamtunerdsp::meter = e2-t1;//-0.0208783);//-((t1-0.021331)*fs/10.0-e2)*20.0;
 				printf("meter =\t%f\n", meter);
 				printf("t1 =\t%f\n", t1);
 				printf("e2 =\t%f\n", e2);
 				printf("freqfound =\t%f\n", freqfound);
 				printf("nearestnotehz =\t%f\n", nearestnotehz);
 				printf("\n");
-				*/
                         } else {
                                 Zamtunerdsp::fundamental = -1.f;
                                 Zamtunerdsp::meter = 0.f;
@@ -152,7 +159,7 @@ void Zamtunerdsp::init (float fsamp)
         unsigned long N=buffer.cbsize;
         Zamtunerdsp::fmembvars = fft_con(N);
         Zamtunerdsp::fs = fsamp;
-        Zamtunerdsp::noverlap = 2;
+        Zamtunerdsp::noverlap = 6;
 
         InstantiatePitchDetector(&pdetector, fmembvars, N, fsamp);
 }
