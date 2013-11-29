@@ -45,9 +45,9 @@ void Zamtunerdsp::process (float *p, int n)
         float* pfOutput=p;
 
 	// Delay locked loop
-	double nper = sample_count;
-	double tper = sample_count / fs;
-	double omega = 2.0*PI*440.0/fs;
+	double nper = fs / 440.0;
+	double tper = 1.0 / 440.0;
+	double omega = 2.0*PI / nper;
 	double oldomega = omega;
 	double b = sqrt(2.0)*omega;
 	double c = omega*omega;
@@ -55,7 +55,7 @@ void Zamtunerdsp::process (float *p, int n)
 
 	//init loop
 	double e2 = tper;
-	double t0 = Zamtunerdsp::read_timer(0, 440.0, fs);
+	double t0 = 0.0;
 	double t1 = t0 + e2;
 	int k = 0;
 
@@ -74,7 +74,7 @@ void Zamtunerdsp::process (float *p, int n)
                 Zamtunerdsp::IncrementPointer(Zamtunerdsp::buffer);
 
 			// Delay locked loop iteration
-			k = (k+1+(int)fs) % ((int)fs);
+			k = (k+1+(int)nper) % ((int)nper);
                 // Every N/noverlap samples, run pitch estimation / manipulation code
                 if ((Zamtunerdsp::buffer.cbiwr)%(N/Zamtunerdsp::noverlap) == 0) {
                         //  ---- Calculate pitch and confidence ----
@@ -100,14 +100,16 @@ void Zamtunerdsp::process (float *p, int n)
                                 nearestnotenum = (nearestnote - 49 + 48) % 12;
                                 Zamtunerdsp::fundamental = nearestnotenum;
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
-				omega = 2.0*PI*(nearestnotehz)/fs;
+				nper = fs / nearestnotehz;
+				tper = 1.0 / nearestnotehz;
+				omega = 2.0*PI / nper;
 				b = sqrt(2.0)*omega;
 				c = omega*omega;
 
 				if (fabs(omega - oldomega) > 0.001) {
 					oldomega = omega;
 					e2 = tper;
-        				t0 = Zamtunerdsp::read_timer(k, nearestnotehz, fs);
+        				t0 = 0.0;
 					t1 = t0 + e2;
 					k = 1;
 				}
@@ -120,7 +122,7 @@ void Zamtunerdsp::process (float *p, int n)
 				t1 += b*e + e2;
 				e2 += c*e;
 
-				Zamtunerdsp::meter = e2;//-0.0208783);//-((t1-0.021331)*fs/10.0-e2)*20.0;
+				Zamtunerdsp::meter = -(t1-t0);
 				printf("meter =\t%f\n", meter);
 				printf("t1 =\t%f\n", t1);
 				printf("e2 =\t%f\n", e2);
