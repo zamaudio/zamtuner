@@ -93,7 +93,7 @@ void Zamtunerdsp::process (float *p, int n)
                                 nearestnotenum = (nearestnote - 49 + 48) % 12;
                                 Zamtunerdsp::fundamental = nearestnotenum;
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
-				printf("nearestnotehz = %f\n", nearestnotehz);
+				//printf("nearestnotehz = %f\n", nearestnotehz);
 			}
 		}
 
@@ -114,7 +114,7 @@ void Zamtunerdsp::process (float *p, int n)
 		 *
 		 */
 		float freq = nearestnotehz;
-		if (freq < 80) freq = 80;
+		if (freq < 65) freq = 65;
 		if (freq > 10000) freq = 10000;
 
 		if (freq != Zamtunerdsp::tuna_fc) {
@@ -158,7 +158,7 @@ void Zamtunerdsp::process (float *p, int n)
 				Zamtunerdsp::dll_e2 += Zamtunerdsp::dll_c * Zamtunerdsp::dll_e0;
 
 				detected_freq += Zamtunerdsp::fs / (Zamtunerdsp::dll_t1 - Zamtunerdsp::dll_t0);
-				printf("detected Freq: %.2f\n", detected_freq);
+				//printf("detected Freq: %.2f\n", detected_freq);
 				detected_count++;
 			}
 		}
@@ -167,8 +167,8 @@ void Zamtunerdsp::process (float *p, int n)
 	}
 
 	if (detected_count > 0) {
-		Zamtunerdsp::meter = (nearestnotehz - ((detected_freq / (float)detected_count)))/5.0;
-		printf("meter: %.2f\n", meter);
+		Zamtunerdsp::meter = 12.0*logf(nearestnotehz/((detected_freq / (float)detected_count)))/logf(2.0);
+		printf("freq : %.2f\n", detected_freq / (float)detected_count);
 	} else if (!Zamtunerdsp::dll_initialized) {
 		Zamtunerdsp::meter = 0; // no signal detected; below threshold
 		Zamtunerdsp::fundamental = -1.f; // no signal detected; below threshold
