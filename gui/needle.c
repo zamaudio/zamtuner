@@ -601,12 +601,12 @@ port_event(LV2UI_Handle handle,
 
 	if ( format != 0 ) { return; }
 
-	if (port_index == 3) {
+	if (port_index == 2) {
 		float nl = meter_deflect(ui->type, *(float *)buffer);
 		invalidate_area(ui, 0, ui->lvl[0], nl);
 		ui->lvl[0] = nl;
 	} else
-	if (port_index == 4) {
+	if (port_index == 3) {
 		float nf = *(float *)buffer;
 		ui->fund[0] = nf;
 		queue_draw(ui->rw);

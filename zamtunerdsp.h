@@ -1,8 +1,13 @@
+#ifndef ZAMTUNERDSP_H
+#define ZAMTUNERDSP_H
+
 extern "C" {
 #include "circular_buffer.h"
 #include "pitch_detector.h"
 #include "fft.h"
+#include "spectr.c"
 };
+
 
 namespace LV2M {
 
@@ -30,17 +35,33 @@ public:
 	float meter;
 	float fundamental;
 
-        float nper;
-        float tper;
-        float oldomega;
-        float e2;
-        float t0;
-        float t1;
-        float n0;
-        float n1;
+	float* a_in;
+	float* a_out;
 
-private:
+	float* p_freq_in;
+	float* p_freq_out;
 
+	double nearestnotehz;
+
+	struct FilterBank fb;
+
+	float tuna_fc; //center freq of expected note
+
+	/* discriminator */
+	float prev_smpl;
+
+	/* RMS / threshold */
+	float rms_omega;
+	float rms_signal;
+
+	/* DLL */
+	bool dll_initialized;
+	uint32_t monotonic_cnt;
+	double dll_e2, dll_e0;
+	double dll_t0, dll_t1;
+	double dll_b, dll_c;
 };
 
 };
+
+#endif

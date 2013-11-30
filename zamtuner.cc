@@ -1,6 +1,6 @@
-/* meter.lv2
+/* zamtuner.cc
  *
- * Copyright (C) 2013 Robin Gareus <robin@gareus.org>
+ * Copyright (C) 2013 Damien Zammit <damien@zamaudio.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +31,10 @@
 using namespace LV2M;
 
 typedef enum {
-	MTR_REFLEVEL = 0,
-	MTR_INPUT0   = 1,
-	MTR_OUTPUT0  = 2,
-	MTR_LEVEL0   = 3,
-	MTR_FUND0    = 4
+	MTR_INPUT0   = 0,
+	MTR_OUTPUT0  = 1,
+	MTR_LEVEL0   = 2,
+	MTR_FUND0    = 3
 } PortIndex;
 
 typedef struct {
@@ -98,8 +97,8 @@ instantiate(const LV2_Descriptor*     descriptor,
                 static_cast<Zamtunerdsp *>(self->mtr[0])->init(rate);
         }	
 
-	self->rlgain = 1.0;
-	self->p_refl = -9999;
+	self->p_refl = -18.0;
+	self->rlgain = 1.f;
 
 	self->peak_max[0] = 0;
 	self->peak_max[1] = 0;
@@ -116,9 +115,6 @@ connect_port(LV2_Handle instance,
 	LV2meter* self = (LV2meter*)instance;
 
 	switch ((PortIndex)port) {
-	case MTR_REFLEVEL:
-		self->reflvl = (float*) data;
-		break;
 	case MTR_INPUT0:
 		self->input[0] = (float*) data;
 		break;
@@ -139,10 +135,10 @@ run(LV2_Handle instance, uint32_t n_samples)
 {
 	LV2meter* self = (LV2meter*)instance;
 
-	if (self->p_refl != *self->reflvl) {
-		self->p_refl = *self->reflvl;
-		self->rlgain = powf (10.0f, 0.05f * (self->p_refl + 18.0));
-	}
+        if (self->p_refl != -18.0) {
+                self->p_refl = -18.0;
+                self->rlgain = powf (10.0f, 0.05f * (self->p_refl + 18.0));
+        }
 
 	int c;
 	for (c = 0; c < self->chn; ++c) {
