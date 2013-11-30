@@ -29,6 +29,16 @@ public:
 
 	float meter;
 	float fundamental;
+
+        float nper;
+        float tper;
+        float oldomega;
+        float e2;
+        float t0;
+        float t1;
+        float n0;
+        float n1;
+
 private:
 
 };

@@ -5,7 +5,15 @@ namespace LV2M {
 
 Zamtunerdsp::Zamtunerdsp (void) :
 	meter(0.f),
-	fundamental(-1.f)
+	fundamental(-1.f),
+        nper(44100.0/440.0),
+	tper(1.0/440.0),
+	oldomega(2.0*M_PI*440.0/44100.0),
+        e2(1.0/440.0),
+        t0(0.0),
+        t1(2.0*M_PI*440.0),
+        n0(0.0),
+	n1(44100.0/440.0)
 {
 }
 
@@ -45,26 +53,13 @@ void Zamtunerdsp::process (float *p, int n)
         float* pfOutput=p;
 
 	// Delay locked loop
-	double nper = fs / 440.0;
-	double tper = 1.0 / 440.0;
-	double omega = 2.0*PI / nper;
-	double oldomega = omega;
-	double b = sqrt(2.0)*omega;
-	double c = omega*omega;
+	double b = sqrt(2.0)*oldomega;
+	double c = oldomega*oldomega;
 	double e;
-
-	//init loop
-	double e2 = tper;
-	double t0 = 0.0;
-	double t1 = t0 + e2;
-	int k = 0;
-
+	double omega = oldomega;
 
         unsigned long lSampleIndex;
         for (lSampleIndex = 0; lSampleIndex < sample_count; lSampleIndex++)  {
-		// init sample counts
-		float n0 = 0;
-		float n1 = nper;
 
 		// load data into circular buffer
                 float in = (float) *(pfInput++);
@@ -73,8 +68,6 @@ void Zamtunerdsp::process (float *p, int n)
 
                 Zamtunerdsp::IncrementPointer(Zamtunerdsp::buffer);
 
-			// Delay locked loop iteration
-			k = (k+1+(int)nper) % ((int)nper);
                 // Every N/noverlap samples, run pitch estimation / manipulation code
                 if ((Zamtunerdsp::buffer.cbiwr)%(N/Zamtunerdsp::noverlap) == 0) {
                         //  ---- Calculate pitch and confidence ----
@@ -85,7 +78,6 @@ void Zamtunerdsp::process (float *p, int n)
                         float notefound = 0.f;
                         //float diff = 0.f;
 			float nearestnotehz = 0.f;
-
 
 
                         if(pperiod>0 && fabs(in) > 0.0005) {
@@ -102,7 +94,7 @@ void Zamtunerdsp::process (float *p, int n)
 				nearestnotehz = 440.0*powf(2.0, (nearestnote-49)/12.0);
 				nper = fs / nearestnotehz;
 				tper = 1.0 / nearestnotehz;
-				omega = 2.0*PI / nper;
+				omega = 2.0 * M_PI / nper;
 				b = sqrt(2.0)*omega;
 				c = omega*omega;
 
@@ -111,7 +103,6 @@ void Zamtunerdsp::process (float *p, int n)
 					e2 = tper;
         				t0 = 0.0;
 					t1 = t0 + e2;
-					k = 1;
 				}
 
 				// read timer and calculate loop error
@@ -122,7 +113,7 @@ void Zamtunerdsp::process (float *p, int n)
 				t1 += b*e + e2;
 				e2 += c*e;
 
-				Zamtunerdsp::meter = -(t1-t0);
+				Zamtunerdsp::meter = (t1-t0)*50.0;
 				printf("meter =\t%f\n", meter);
 				printf("t1 =\t%f\n", t1);
 				printf("e2 =\t%f\n", e2);
